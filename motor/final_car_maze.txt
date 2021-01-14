@@ -1,0 +1,191 @@
+#include<Servo.h>
+#define in1 7   //motor1
+#define in2 8   //motor1
+#define ena 3   //motor1
+
+#define in3 2   //motor2
+#define in4 4   //motor2
+#define enb 5   //motor2
+
+#define right_IR 11
+#define lift_IR  12
+
+void move1 (bool m1 , bool m2, int sp1, int sp2);
+bool maze();
+int ultrasonic();
+void maze_forward();
+
+char serialA;
+int liftValue, rightValue;
+const int trigPin = 9;
+const int echoPin = 10;
+
+long duration;
+int distance;
+
+Servo ultrasonic_servo;
+
+void setup() {
+
+  //the pins of servos on the arduino
+  Serial.begin (9600);
+  pinMode(in1 , OUTPUT );
+  pinMode(in2 , OUTPUT );
+  pinMode(in3 , OUTPUT );
+  pinMode(in4 , OUTPUT );
+  pinMode(ena , OUTPUT );
+  pinMode(enb , OUTPUT );
+
+  pinMode(right_IR, INPUT);
+  pinMode(lift_IR, INPUT);
+  
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  ultrasonic_servo.attach(6);
+  ultrasonic_servo.write(90);
+}
+
+void loop() {
+
+  if (Serial.available() > 0 )
+  {
+    serialA = Serial.read();
+    switch (serialA) {
+
+      //forward
+      case 'F':
+
+        move1(1, 1, 150, 150);
+
+        break;
+
+      //fleft
+      case 'G':
+        move1(1, 1, 175, 100);
+
+        break ;
+
+      //fright
+      case 'I':
+        move1(1, 1, 100, 175);
+
+        break ;
+
+      //left
+      case 'L':
+        move1(1, 0, 100, 0);
+
+        break ;
+
+      //right
+      case 'R':
+        move1(0, 1, 0, 100);
+
+        break ;
+
+      //reverse()
+      case 'B':
+        move1(0, 0, 150, 150);
+
+        break;
+
+      //rleft()
+      case 'H':
+        move1(0, 0, 175, 100);
+
+        break;
+
+      //rright()
+
+      case 'J':
+        move1(0, 0, 100, 175);
+
+
+        break;
+
+      //off
+      case 'S' :
+        move1(0, 0, 0, 0);
+
+        break;
+
+      case 'V':
+        maze();
+
+        break;
+
+      default:
+
+        break;
+
+    }
+  }
+}
+
+void move1 (bool m1 , bool m2, int sp1, int sp2)
+{
+  digitalWrite(in1 , m1);
+  digitalWrite(in2 , !m1);
+  digitalWrite(in4 , m2);
+  digitalWrite(in3 , !m2);
+  analogWrite (ena , sp1);
+  analogWrite (enb , sp2);
+
+}
+
+bool maze() {
+
+  while (1) {
+    maze_forward();
+    delay(1000);
+    ultrasonic_servo.write(180);
+    delay(1000);
+    if (ultrasonic() < 50) {
+      ultrasonic_turn(-1);
+    }
+    else {
+      ultrasonic_turn(1);
+    }
+
+  }
+
+
+}
+
+
+int ultrasonic() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+  return (distance);
+}
+
+void maze_forward() {
+  while (ultrasonic() > 15) {
+    rightValue = digitalRead(right_IR);
+    liftValue = digitalRead(lift_IR);
+    if (rightValue == 1, liftValue == 1) {
+      move1(1, 1, 80, 80);
+    }
+    else if (rightValue == 0, liftValue == 1) {
+      move1(1, 1, 60, 100);
+    }
+    else if (rightValue == 1, liftValue == 0) {
+      move1(1, 1, 100, 60);
+    }
+    else if (rightValue == 0, liftValue == 0) {
+      move1(1, 1, 0, 0);
+    }
+  }
+}
+
+void ultrasonic_turn(int dir) {
+  while (rightValue == 0 || liftValue == 0) {
+    move1(1, 1, 100 + 30 * dir, 100 - 30 * dir); //when right send dir=-1 and at lift send dir=1
+  }
+}

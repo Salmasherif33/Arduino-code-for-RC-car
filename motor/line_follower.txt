@@ -1,0 +1,16 @@
+#define right_IR 11
+#define lift_IR  12
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(right_IR, INPUT);
+  pinMode(lift_IR, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println(digitalRead(right_IR));
+  //Serial.println(digitalRead(lift_IR));
+  
+
+}

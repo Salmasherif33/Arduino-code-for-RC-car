@@ -1,0 +1,71 @@
+#include <Servo.h>
+Servo baseservo;
+Servo shoulderservo;
+Servo gripperservo;
+Servo elbowservo;
+int serialA;
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin (9600);
+baseServo.attach(9);
+shoulderservo.attach(10);
+elbowservo.attach(11);
+gripperservo.attach(6);
+baseservo.write(90);
+shoulder.write(150);
+elbowservo.write(110);
+gripperservo.write(50);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  if (Serial.available() > 0 )
+  {
+    serialA = Serial.read();
+   
+    }
+ 
+ if(serialA<60&&serialA>48){ // there is an error here due to the data type but we can't solve it
+  Speed=(serialA-48)*25;
+ 
+  } 
+ else {
+switch (serialA){
+
+  case 'W': //move the base
+  for(angle=0, angle <= 180, angle+=20) // 0 is the min angle & 180 is the max angle of this servo
+  {
+    baseservo.write(angle);
+    delay(500);
+    if (serialA == 'w')
+    {
+      int  currentpos = baseservo.read(); 
+      break;
+    }
+    
+  }
+  break;
+
+  case'w': //stop the base
+ 
+  baseservo.write(cuttentpos);
+  break;
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+ 
+}
+}
+}

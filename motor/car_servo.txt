@@ -1,0 +1,238 @@
+#include <Servo.h>
+//#include <SoftwareSerial.h>
+#define in1 7   //motor1
+#define in2 8   //motor1
+#define ena 3   //motor1
+
+#define in3 2   //motor2
+#define in4 4   //motor2
+#define enb 5   //motor2
+
+//motor 3 & 4 //
+void move1 (bool m1 , bool m2, int sp1, int sp2);
+
+Servo baseservo;
+Servo shoulderservo;
+Servo gripperservo;
+Servo elbowservo;
+
+char serialA;
+bool which = 0;
+
+int pos_base = 0;
+int pos_shoulder = 0;
+int pos_gripper = 0;
+int pos_elbow = 0;
+void setup() {
+  // put your setup code here, to run once:
+
+  //the pins of servos on the arduino
+  Serial.begin (9600);
+  pinMode(in1 , OUTPUT );
+  pinMode(in2 , OUTPUT );
+  pinMode(in3 , OUTPUT );
+  pinMode(in4 , OUTPUT );
+  pinMode(ena , OUTPUT );
+  pinMode(enb , OUTPUT );
+
+  // motor 3 & 4 //
+
+  baseservo.attach(6);
+  shoulderservo.attach(9);
+  elbowservo.attach(10);
+  gripperservo.attach(11);
+
+  //initial position of the 4 servos
+  baseservo.write(1);
+  shoulderservo.write(1);
+  elbowservo.write(1);
+  gripperservo.write(1);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  if (Serial.available() > 0 )
+  {
+    serialA = Serial.read();
+    if (serialA == 'V') {
+      which = 1;
+    }
+
+    else if (serialA == 'v') {
+      which = 0;
+    }
+
+    else {
+      if (which == 0) {
+        switch (serialA) {
+
+          //forward
+          case 'F':
+
+            move1(1, 1, 150, 150);
+
+            break;
+
+          //fleft
+          case 'G':
+            move1(1, 1, 175, 100);
+
+            break ;
+
+          //fright
+          case 'I':
+            move1(1, 1, 100, 175);
+
+            break ;
+
+          //left
+          case 'L':
+            move1(1, 0, 100, 0);
+
+            break ;
+
+          //right
+          case 'R':
+            move1(0, 1, 0, 100);
+
+            break ;
+
+          //reverse()
+          case 'B':
+            move1(0, 0, 150, 150);
+
+            break;
+
+          //rleft()
+          case 'H':
+            move1(0, 0, 175, 100);
+
+            break;
+
+          //rright()
+
+          case 'J':
+            move1(0, 0, 100, 175);
+
+
+            break;
+
+          //off
+          case 'S' :
+            move1(0, 0, 0, 0);
+
+            break;
+
+          default:
+
+            break;
+
+        }
+      }
+      else {
+
+        move1(0, 0, 0, 0);
+
+        switch (serialA) {
+
+          //elbow_down
+          case 'F':
+            if (pos_elbow < 155) {
+              pos_elbow += 20;
+              elbowservo.write(pos_elbow);
+            }
+
+            break;
+
+          //shoulder_up
+          case 'G':
+            if (pos_shoulder > 21) {
+              pos_elbow -= 20;
+              shoulderservo.write(pos_shoulder);
+            }
+
+            break ;
+
+          //shoulder_down
+          case 'I':
+
+            if (pos_shoulder < 155) {
+              pos_elbow += 20;
+              shoulderservo.write(pos_shoulder);
+            }
+
+            break ;
+
+          //base_left
+          case 'L':
+            if (pos_base > 21) {
+              pos_elbow -= 20;
+              baseservo.write(pos_base);
+            }
+
+            break ;
+
+          //base_right
+          case 'R':
+
+            if (pos_base < 155) {
+              pos_elbow += 20;
+              baseservo.write(pos_base);
+            }
+
+            break ;
+
+          //elbow_back
+          case 'B':
+
+            if (pos_elbow > 21) {
+              pos_elbow -= 20;
+              elbowservo.write(pos_elbow);
+            }
+
+            break;
+
+          //gripper_open
+
+          case 'H':
+
+            if (pos_gripper > 21) {
+              pos_elbow -= 20;
+              gripperservo.write(pos_gripper);
+            }
+
+            break;
+
+          //gripper_close
+
+          case 'J':
+
+            if (pos_gripper < 155) {
+              pos_elbow += 20;
+              gripperservo.write(pos_gripper);
+            }
+
+
+            break;
+
+          //off
+          default :
+
+            break;
+
+        }
+      }
+    }
+  }
+}
+
+void move1 (bool m1 , bool m2, int sp1, int sp2)
+{
+  digitalWrite(in1 , m1);
+  digitalWrite(in2 , !m1);
+  digitalWrite(in4 , m2);
+  digitalWrite(in3 , !m2);
+  analogWrite (ena , sp1);
+  analogWrite (enb , sp2);
+
+}
